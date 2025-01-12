@@ -44,24 +44,30 @@ def execute_select_query(connection, query, params=None):
 
 def execute_insert_query(connection, query, params=None):
     """
-    INSERT 쿼리 실행 함수.
+    INSERT 쿼리 실행 함수. 다중 행 삽입 지원.
     :param connection: 데이터베이스 연결 객체
     :param query: 실행할 INSERT 쿼리 문자열
-    :param params: 쿼리 파라미터 (튜플이나 딕셔너리 형태)
-    :return: 삽입된 행 수
+    :param params: 삽입할 데이터 (단일 행: 튜플 또는 딕셔너리, 다중 행: 리스트의 리스트 또는 딕셔너리)
+    :return: 삽입된 총 행 수
     """
-    if connection is None:
-        print("Database connection is not provided.")
+    if connection is None or not connection.open:
+        print("Database connection is not provided or closed.")
         return None
 
     try:
         with connection.cursor() as cursor:
-            affected_rows = cursor.execute(query, params)
+            if isinstance(params, list) and isinstance(params[0], (list, tuple)):  # 다중 행 처리
+                affected_rows = cursor.executemany(query, params)
+            else:  # 단일 행 처리
+                affected_rows = cursor.execute(query, params)
             connection.commit()  # 변경 사항 저장
             return affected_rows
     except pymysql.MySQLError as e:
         print("Error executing INSERT query:", e)
+        print("Query:", query)
+        print("Params:", params)
         return None
+
 
 # 사용 예시
 if __name__ == "__main__":

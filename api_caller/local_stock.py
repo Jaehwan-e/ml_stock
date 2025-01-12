@@ -6,7 +6,7 @@ import os
 # .env 파일 로드
 load_dotenv()
 
-async def get_inquire_price(token, stock_code):
+async def inquire_price(token, stock_code):
     url = "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-price"
     headers = {
         "Content-Type": "application/json; charset=utf-8",
@@ -24,7 +24,6 @@ async def get_inquire_price(token, stock_code):
             async with session.get(url, headers=headers, params=params) as response:
                 if response.status == 200:
                     data = await response.json()
-                    print(data)
                     return data
                 else:
                     print(f"Failed to get stock price. HTTP Status: {response.status}, Response: {await response.text()}")
@@ -33,7 +32,7 @@ async def get_inquire_price(token, stock_code):
             print("An error occurred while making the request:", e)
             return None
 
-async def get_inquire_ccnl(token, stock_code):
+async def inquire_ccnl(token, stock_code):
     url = "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-ccnl"
     headers = {
         "Content-Type": "application/json; charset=utf-8",
@@ -51,7 +50,6 @@ async def get_inquire_ccnl(token, stock_code):
             async with session.get(url, headers=headers, params=params) as response:
                 if response.status == 200:
                     data = await response.json()
-                    print(data)
                     return data
                 else:
                     print(f"Failed to get stock price. HTTP Status: {response.status}, Response: {await response.text()}")
@@ -60,7 +58,7 @@ async def get_inquire_ccnl(token, stock_code):
             print("An error occurred while making the request:", e)
             return None
 
-async def get_inquire_asking_price_exp_ccn(token, stock_code):
+async def inquire_asking_price_exp_ccn(token, stock_code):
     url = "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-asking-price-exp-ccn"
     headers = {
         "Content-Type": "application/json; charset=utf-8",
@@ -78,7 +76,6 @@ async def get_inquire_asking_price_exp_ccn(token, stock_code):
             async with session.get(url, headers=headers, params=params) as response:
                 if response.status == 200:
                     data = await response.json()
-                    print(data)
                     return data
                 else:
                     print(f"Failed to get stock price. HTTP Status: {response.status}, Response: {await response.text()}")
@@ -87,7 +84,7 @@ async def get_inquire_asking_price_exp_ccn(token, stock_code):
             print("An error occurred while making the request:", e)
             return None
 
-async def get_inquire_investor(token, stock_code):
+async def inquire_investor(token, stock_code):
     url = "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-price"
     headers = {
         "Content-Type": "application/json; charset=utf-8",
@@ -105,7 +102,6 @@ async def get_inquire_investor(token, stock_code):
             async with session.get(url, headers=headers, params=params) as response:
                 if response.status == 200:
                     data = await response.json()
-                    print(data)
                     return data
                 else:
                     print(f"Failed to get stock price. HTTP Status: {response.status}, Response: {await response.text()}")
@@ -114,7 +110,7 @@ async def get_inquire_investor(token, stock_code):
             print("An error occurred while making the request:", e)
             return None
 
-async def get_inquire_member(token, stock_code):
+async def inquire_member(token, stock_code):
     url = "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-price"
     headers = {
         "Content-Type": "application/json; charset=utf-8",
@@ -132,7 +128,6 @@ async def get_inquire_member(token, stock_code):
             async with session.get(url, headers=headers, params=params) as response:
                 if response.status == 200:
                     data = await response.json()
-                    print(data)
                     return data
                 else:
                     print(f"Failed to get stock price. HTTP Status: {response.status}, Response: {await response.text()}")

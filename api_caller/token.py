@@ -4,15 +4,15 @@ from dotenv import load_dotenv
 import os
 
 # .env 파일 로드
-load_dotenv()
+load_dotenv(override=True)
 
 
-def get_token(token):
+def get_token(token=''):
     # 토큰 폐기
     revoke_token(token)
 
     # 요청 URL과 헤더 설정
-    url = "https://openapivts.koreainvestment.com:9443/oauth2/tokenP"
+    url = "https://openapi.koreainvestment.com:9443/oauth2/tokenP"
     headers = {
         "Content-Type": "application/json; charset=UTF-8"
     }
@@ -66,9 +66,9 @@ def revoke_token(token):
 
         # 응답 처리
         if response.status_code == 200:
-            return True
+            return None
         else:
-            print(f"Failed to get access token. HTTP Status: {response.status_code}, Response: {response.text}")
+            print(f"Failed to revoke access token. HTTP Status: {response.status_code}, Response: {response.text}")
             return None
 
     except requests.exceptions.RequestException as e:
