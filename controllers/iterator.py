@@ -53,6 +53,7 @@ async def main_iterator(token, stock_codes):
     while True:
         if is_xkrx_session_today():  # 주식 거래일인지 확인
             print("Today is a valid trading session.")
+            token = get_token(token)
 
             # 오전 작업 실행
             now = datetime.now(seoul_tz)
