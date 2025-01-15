@@ -1,5 +1,6 @@
 import asyncio
 import os
+import pytz
 from datetime import datetime
 from utils.db_queries import execute_insert_query, connect_to_database
 from controllers.data_fetcher import (
@@ -71,11 +72,9 @@ async def save_price_data(connection, token, stock_codes):
         execute_insert_query(connection, query, values)
 
     except Exception as e:
-        log_message = f"Error in save_price_data: {e}"
-        print(log_message)
-        with open("log.txt", "a") as log:
-            log.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_message}\n")
-        raise e
+        message = f"Error in save_price_data: {e}"
+        log_message(message)
+        send_email("Error in save_price_data()", message)
 
 
 
@@ -105,11 +104,9 @@ async def save_ccnl_data(connection, token, stock_codes):
         execute_insert_query(connection, query, values)
 
     except Exception as e:
-        log_message = f"Error in save_ccnl_data: {e}"
-        print(log_message)
-        with open("log.txt", "a") as log:
-            log.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_message}\n")
-        raise e
+        message = f"Error in save_ccnl_data: {e}"
+        log_message(message)
+        send_email("Error in save_ccnl_data()", message)
 
 async def save_asking_price_exp_ccn_data(connection, token, stock_codes):
     """
@@ -155,11 +152,9 @@ async def save_asking_price_exp_ccn_data(connection, token, stock_codes):
         execute_insert_query(connection, query, values)
         
     except Exception as e:
-        log_message = f"Error in save_ccnl_data: {e}"
-        print(log_message)
-        with open("log.txt", "a") as log:
-            log.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_message}\n")
-        raise e
+        message = f"Error in save_asking_price_exp_ccn_data: {e}"
+        log_message(message)
+        send_email("Error in save_asking_price_exp_ccn_data()", message)
 
 
 
@@ -201,11 +196,9 @@ async def save_investor_data(connection, token, stock_codes):
         execute_insert_query(connection, query, values)
 
     except Exception as e:
-        log_message = f"Error in save_ccnl_data: {e}"
-        print(log_message)
-        with open("log.txt", "a") as log:
-            log.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_message}\n")
-        raise e    
+        message = f"Error in save_investor_data: {e}"
+        log_message(message)
+        send_email("Error in save_investor_data()", message)
 
 
 async def save_member_data(connection, token, stock_codes):
@@ -257,11 +250,33 @@ async def save_member_data(connection, token, stock_codes):
         execute_insert_query(connection, query, values)
         
     except Exception as e:
-        log_message = f"Error in save_ccnl_data: {e}"
-        print(log_message)
-        with open("log.txt", "a") as log:
-            log.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_message}\n")
-        raise e
+        message = f"Error in save_member_data: {e}"
+        log_message(message)
+        send_email("Error in save_member_data()", message)
+
+
+
+log_file = "log.txt"
+
+def log_message(message, log_file = "log.txt"):
+    """
+    로그 메시지를 파일에 기록하고 출력합니다.
+    
+    Args:
+        message (str): 기록할 메시지
+        log_file (str): 로그를 저장할 파일 경로
+    """
+    seoul_tz = pytz.timezone("Asia/Seoul")  # 서울 타임존
+    timestamp = datetime.now(seoul_tz).strftime("%Y-%m-%d %H:%M:%S")  # 현재 시간 (서울)
+    full_message = f"[{timestamp}] {message}\n"
+    
+    print(full_message)  # 콘솔에도 출력
+    with open(log_file, "a") as log:
+        log.write(full_message)
+
+# 로그 파일이 없으면 생성
+if not os.path.exists(log_file):
+    log_message("Log file created.")
 
 
 async def save_all_data(token, stock_codes):
@@ -273,28 +288,11 @@ async def save_all_data(token, stock_codes):
         print("데이터베이스 연결 실패")
         send_email("Error in save_all_data()", "데이터베이스 연결 실패")
         return
-
-    log_file = "log.txt"  # 로그 파일 경로
-
-    # 로그 파일이 없으면 생성
-    if not os.path.exists(log_file):
-        with open(log_file, "w") as log:
-            log.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Log file created.\n")
-
-    def log_message(message):
-        """
-        로그 메시지를 파일에 기록하고 출력합니다.
-        """
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # 현재 시간
-        full_message = f"[{timestamp}] {message}\n"
-        print(full_message)  # 콘솔에도 출력
-        with open(log_file, "a") as log:
-            log.write(full_message)
-
+        
     try:
         # n개씩 끊어서 처리
         delay = 1
-        max = 4
+        max = 3
         for i in range(0, len(stock_codes), max):
             batch = stock_codes[i:i + max]  # n개씩 나누기
 

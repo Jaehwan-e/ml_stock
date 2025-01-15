@@ -45,29 +45,60 @@ async def main_iterator(token, stock_codes):
     조건을 확인하여 작업 실행.
     """
     seoul_tz = pytz.timezone("Asia/Seoul")
-    morning_start = datetime.now(seoul_tz).replace(hour=9, minute=0, second=10, microsecond=0)
-    morning_end = datetime.now(seoul_tz).replace(hour=12, minute=0, second=10, microsecond=0)
-    afternoon_start = datetime.now(seoul_tz).replace(hour=13, minute=30, second=10, microsecond=0)
-    afternoon_end = datetime.now(seoul_tz).replace(hour=15, minute=30, second=10, microsecond=0)
 
     while True:
+        now = datetime.now(seoul_tz)
+
+        # 작업 시간 설정
+        start = now.replace(hour=9, minute=0, second=10, microsecond=0)
+        end = now.replace(hour=15, minute=30, second=10, microsecond=0)
+        # morning_start = now.replace(hour=9, minute=0, second=10, microsecond=0)
+        # morning_end = now.replace(hour=12, minute=0, second=10, microsecond=0)
+        # afternoon_start = now.replace(hour=13, minute=30, second=10, microsecond=0)
+        # afternoon_end = now.replace(hour=15, minute=30, second=10, microsecond=0)
+
         if is_xkrx_session_today():  # 주식 거래일인지 확인
             print("Today is a valid trading session.")
             token = get_token(token)
 
-            # 오전 작업 실행
-            now = datetime.now(seoul_tz)
-            if now <= morning_end:
-                await iterator_10m(max(morning_start, now), morning_end, token, stock_codes)
+            # 작업 실행
+            now = datetime.now(seoul_tz)  # 현재 시간 갱신
+            if now < start:
+                # 작업 시작 시간까지 대기
+                sleep_time = (start - now).total_seconds()
+                print(f"Waiting {int(sleep_time // 3600)} hours {int((sleep_time % 3600) // 60)} minutes {int(sleep_time % 60)} seconds for morning session to start...")
+                await asyncio.sleep(sleep_time)
+                now = datetime.now(seoul_tz)  # 대기 후 시간 갱신
 
-            # 오후 작업 실행
-            now = datetime.now(seoul_tz)  # 시간 갱신
-            if now <= afternoon_end:
-                if now < afternoon_start:
-                    # 오후 작업 시작 시간까지 대기
-                    sleep_time = (afternoon_start - now).total_seconds()
-                    await asyncio.sleep(sleep_time)
-                await iterator_10m(afternoon_start, afternoon_end, token, stock_codes)
+            if start <= now <= end:
+                print(f"Starting session at {now}")
+                await iterator_10m(max(start, now), end, token, stock_codes)
+
+
+            # # 오전 작업 실행
+            # now = datetime.now(seoul_tz)  # 현재 시간 갱신
+            # if now < morning_start:
+            #     # 오전 작업 시작 시간까지 대기
+            #     sleep_time = (morning_start - now).total_seconds()
+            #     print(f"Waiting {int(sleep_time // 3600)} hours {int((sleep_time % 3600) // 60)} minutes {int(sleep_time % 60)} seconds for morning session to start...")
+            #     await asyncio.sleep(sleep_time)
+            #     now = datetime.now(seoul_tz)  # 대기 후 시간 갱신
+
+            # if morning_start <= now <= morning_end:
+            #     print(f"Starting morning session at {now}")
+            #     await iterator_10m(max(morning_start, now), morning_end, token, stock_codes)
+
+            # # 오후 작업 실행
+            # now = datetime.now(seoul_tz)  # 시간 갱신
+            # if now <= afternoon_end:
+            #     if now < afternoon_start:
+            #         # 오후 작업 시작 시간까지 대기
+            #         sleep_time = (afternoon_start - now).total_seconds()
+            #         print(f"Waiting {sleep_time} seconds for afternoon session to start...")
+            #         await asyncio.sleep(sleep_time)
+            #         now = datetime.now(seoul_tz)  # 대기 후 시간 갱신
+            #     print(f"Starting afternoon session at {now}")
+            #     await iterator_10m(afternoon_start, afternoon_end, token, stock_codes)
         else:
             print("Today is not a valid trading session.")
 
