@@ -52,10 +52,6 @@ async def main_iterator(token, stock_codes):
         # 작업 시간 설정
         start = now.replace(hour=9, minute=0, second=10, microsecond=0)
         end = now.replace(hour=15, minute=30, second=10, microsecond=0)
-        # morning_start = now.replace(hour=9, minute=0, second=10, microsecond=0)
-        # morning_end = now.replace(hour=12, minute=0, second=10, microsecond=0)
-        # afternoon_start = now.replace(hour=13, minute=30, second=10, microsecond=0)
-        # afternoon_end = now.replace(hour=15, minute=30, second=10, microsecond=0)
 
         if is_xkrx_session_today():  # 주식 거래일인지 확인
             print("Today is a valid trading session.")
@@ -66,7 +62,7 @@ async def main_iterator(token, stock_codes):
             if now < start:
                 # 작업 시작 시간까지 대기
                 sleep_time = (start - now).total_seconds()
-                print(f"Waiting {int(sleep_time // 3600)} hours {int((sleep_time % 3600) // 60)} minutes {int(sleep_time % 60)} seconds for morning session to start...")
+                print(f"Waiting {int(sleep_time // 3600)} hours {int((sleep_time % 3600) // 60)} minutes {int(sleep_time % 60)} seconds for session to start...")
                 await asyncio.sleep(sleep_time)
                 now = datetime.now(seoul_tz)  # 대기 후 시간 갱신
 
@@ -102,9 +98,10 @@ async def main_iterator(token, stock_codes):
         else:
             print("Today is not a valid trading session.")
 
-        print("Waiting until next day to recheck the condition...")
-        # 하루 종료 후 자정까지 대기
+        # 다음 날 자정까지 대기
         now = datetime.now(seoul_tz)
         next_day = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
         sleep_time = (next_day - now).total_seconds()
+        print(f"Waiting until next day to recheck the condition in {int(sleep_time // 3600)} hours {int((sleep_time % 3600) // 60)} minutes {int(sleep_time % 60)} seconds...")
         await asyncio.sleep(sleep_time)
+
