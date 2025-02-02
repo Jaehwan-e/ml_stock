@@ -1,0 +1,7 @@
+pymysql
+python-dotenv
+pytz
+requests
+exchange_calendars
+aiohttp
+yagmail
